@@ -51,8 +51,9 @@ public class SyntheticCardRecharge {
       count++;
       System.out.println("count  " + count);
       startTimes.add(Calendar.DATE, count - 1);
-
-
+      if (timeNow.getTime().equals(startTime.getTime())){
+        break;
+      }
       for (int i = 0; i <= 23; i++) {
         Calendar startHour = Calendar.getInstance();
         Calendar endHour = Calendar.getInstance();
