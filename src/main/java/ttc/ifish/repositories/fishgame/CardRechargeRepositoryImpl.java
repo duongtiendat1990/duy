@@ -1,9 +1,10 @@
-package ttc.ifish.repositories;
+package ttc.ifish.repositories.fishgame;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import ttc.ifish.models.entities.CardRecharge;
+import ttc.ifish.models.entities.fishgame.CardRecharge;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -15,6 +16,7 @@ import java.util.List;
 @Transactional
 public class CardRechargeRepositoryImpl {
 
+  @Qualifier("fishgameEntityManager")
   @Autowired
   EntityManager em;
 

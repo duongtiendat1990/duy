@@ -3,8 +3,8 @@ package ttc.ifish.service.Impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ttc.ifish.models.entities.ReportUserCardRecharge;
-import ttc.ifish.repositories.ReportUserCardRechargeRepository;
+import ttc.ifish.models.entities.report.ReportUserCardRecharge;
+import ttc.ifish.repositories.report.ReportUserCardRechargeRepository;
 import ttc.ifish.service.ReportUserCardRechargeService;
 
 import java.util.Calendar;
@@ -31,6 +31,11 @@ public class ReportUserCardRechargeServiceImpl implements ReportUserCardRecharge
   @Override
   public ReportUserCardRecharge findByDateAndUserId(Calendar date, Integer userId) {
     return reportUserCardRechargeRepository.findByDateAndUserId(date, userId);
+  }
+
+  @Override
+  public ReportUserCardRecharge findByDate(Calendar date) {
+    return reportUserCardRechargeRepository.findByDate(date);
   }
 
 

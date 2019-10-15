@@ -1,4 +1,4 @@
-package ttc.ifish.models.entities;
+package ttc.ifish.models.entities.report;
 
 import javax.persistence.*;
 import java.util.Calendar;
@@ -9,10 +9,15 @@ public class ReportUserCardRecharge {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "reportId")
   private Integer reportId;
+  @Column(name = "date")
   private Calendar date;
+  @Column(name = "userId")
   private Integer userId;
+  @Column(name = "valueCardRecharge")
   private Long valueCardRecharge;
+  @Column(name = "valueCardCashOut")
   private Long valueCardCashOut;
 
   public ReportUserCardRecharge(){};

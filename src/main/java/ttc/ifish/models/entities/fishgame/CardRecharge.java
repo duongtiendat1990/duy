@@ -1,4 +1,4 @@
-package ttc.ifish.models.entities;
+package ttc.ifish.models.entities.fishgame;
 
 import org.springframework.format.annotation.DateTimeFormat;
 

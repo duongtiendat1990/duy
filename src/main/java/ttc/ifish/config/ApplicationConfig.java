@@ -10,7 +10,7 @@ public class ApplicationConfig {
   @Bean
   public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
     PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
-    properties.setLocation(new FileSystemResource("/home/duy/Music/config.properties"));
+    properties.setLocation(new FileSystemResource("/home/duy/Music/config_card.properties"));
     properties.setIgnoreResourceNotFound(false);
     return properties;
   }
