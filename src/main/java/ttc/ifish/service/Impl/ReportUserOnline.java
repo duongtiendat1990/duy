@@ -13,6 +13,7 @@ import ttc.ifish.repositories.report.ReportUserRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -31,38 +32,21 @@ public class ReportUserOnline {
   ReportUserConFormDateReponsitory reportUserConFormDateReponsitory;
 
   public void generalDiary() {
-    String startDate = START_DATE.replace('-', '_');
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
-    Date date = null;
+    SimpleDateFormat getTimeFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat tableNameDateFormat = new SimpleDateFormat("yyyy_M_d");
     try {
-      date = sdf.parse(startDate);
-    }
-    catch (ParseException e) {
-      e.printStackTrace();
-    }
-    Calendar startTime = Calendar.getInstance();
-    startTime.setTime(date);
-    Calendar endTime = (Calendar) startTime.clone();
-    endTime.add(Calendar.HOUR_OF_DAY, 1);
-    try {
-      while (endTime.after(Calendar.getInstance())) {
-        startTime.add(Calendar.DAY_OF_MONTH, 1);
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy_M_d");
-        Date date1 = sdf.parse(START_DATE);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date1);
-        cal.add(Calendar.DATE, 1);
-        Date date2 = cal.getTime();
-        String dateTime = sdf1.format(date2);
-        reportUserFormDate(dateTime);
-        for (int j = 0; j <= 23 && endTime.before(Calendar.getInstance()); j++, startTime.add(Calendar.HOUR_OF_DAY, 1))
-          ;
-        {
-          endTime = (Calendar) startTime.clone();
-          endTime.add(Calendar.HOUR_OF_DAY, 1);
-          reportUserFormHour(startTime, endTime, dateTime);
-        }
-      }
+      Date initiateTime = getTimeFormat.parse(START_DATE);
+      Calendar startTime = Calendar.getInstance();
+      startTime.setTime(initiateTime);
+      Calendar endTime = (Calendar) startTime.clone();
+      endTime.add(Calendar.HOUR_OF_DAY, 1);
+      do {
+        String tableNameSuffix = tableNameDateFormat.format(startTime.getTime());
+        reportUserFormDate(tableNameSuffix);
+        reportUserFormHour(startTime, endTime, tableNameSuffix);
+        startTime.add(Calendar.HOUR_OF_DAY, 1);
+        endTime.add(Calendar.HOUR_OF_DAY, 1);
+      } while (endTime.before(Calendar.getInstance()));
     }
     catch (ParseException e) {
       e.printStackTrace();
@@ -77,15 +61,14 @@ public class ReportUserOnline {
     reportUserConFormDateReponsitory.save(userConFormDate);
   }
 
-  private void reportUserFormHour(Calendar startTime, Calendar endTime, String dateTime) {
-    List<DiaryUser> diaryUsers = diaryUserRepository.findAllUserOnlineAtTheSameHour(dateTime, startTime, endTime);
+  private void reportUserFormHour(Calendar startTime, Calendar endTime, String tableNameSuffix) {
+    List<DiaryUser> diaryUsers = diaryUserRepository.findAllUserOnlineAtTheSameHour(tableNameSuffix, startTime, endTime);
     ReportUserConFormHour reportUser = new ReportUserConFormHour();
     reportUser.setCountUser(diaryUsers.size());
-    reportUser.setHour(startTime.get(Calendar.HOUR_OF_DAY));
-    reportUser.setDate(dateTime);
-    ReportUserConFormHour reportUser1 = reportUserRepository.findByHourAndDate(
-      startTime.get(Calendar.HOUR_OF_DAY),
-      dateTime);
+    int hour = startTime.get(Calendar.HOUR_OF_DAY);
+    reportUser.setHour(hour);
+    reportUser.setDate(tableNameSuffix);
+    ReportUserConFormHour reportUser1 = reportUserRepository.findByHourAndDate(hour, tableNameSuffix);
     if (reportUser1 != null) {
       reportUser1.setCountUser(diaryUsers.size());
       reportUserRepository.save(reportUser1);

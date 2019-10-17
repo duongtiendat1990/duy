@@ -44,65 +44,59 @@ public class ReportCard {
     startTime.setTime(date);
     Calendar endTime = (Calendar) startTime.clone();
     endTime.add(Calendar.HOUR_OF_DAY, 1);
-    reportCardRechargeAndCardCashOut(startTime, endTime);
+    storeReportCardRechargeAndCardCashOut(startTime, endTime);
 
   }
 
-  private void reportCardRechargeAndCardCashOut(Calendar startTime, Calendar endTime) {
-    while (endTime.before(Calendar.getInstance())) {
-      startTime.add(Calendar.DATE, 1);
-      for (int i = 0; i <= 23 && endTime.before(Calendar.getInstance()); i++, startTime.add(Calendar.HOUR_OF_DAY, 1)) {
-        endTime = (Calendar) startTime.clone();
-        endTime.add(Calendar.HOUR_OF_DAY, 1);
-        reportCardRecharge(startTime, endTime);
-        reportCardCashOut(startTime, endTime);
-      }
-    }
+  private void storeReportCardRechargeAndCardCashOut(Calendar startTime, Calendar endTime) {
+    do {
+      reportCardRechargePerHour(startTime, endTime);
+      reportCardCashOutPerHour(startTime, endTime);
+      startTime.add(Calendar.HOUR_OF_DAY, 1);
+      endTime.add(Calendar.HOUR_OF_DAY, 1);
+    } while (endTime.before(Calendar.getInstance()));
   }
 
-  private void reportCardRecharge(Calendar startTime, Calendar endTime) {
+  private void reportCardRechargePerHour(Calendar startTime, Calendar endTime) {
     List<CardRecharge> cardRechargeList = cardRechargeRepository.getCardRecharge(startTime, endTime);
-    Iterator<CardRecharge> cardRechargeIterator = cardRechargeList.iterator();
-    while (cardRechargeIterator.hasNext()) {
-      CardRecharge cardRecharge = cardRechargeIterator.next();
+    for (CardRecharge cardRecharge : cardRechargeList) {
       Long totalAmount = cardRechargeRepository.sumValueCardRecharge(cardRecharge.getUserID(), startTime, endTime);
-      ReportUserCardRecharge reportUserCardRecharge = new ReportUserCardRecharge();
-      reportUserCardRecharge.setValueCardRecharge(totalAmount);
-      reportUserCardRecharge.setDate(startTime);
-      reportUserCardRecharge.setUserId(cardRecharge.getUserID());
-      reportUserCardRecharge.setValueCardCashOut(0l);
-      ReportUserCardRecharge recharge = reportUserCardRechargeService.findByDateAndUserId(startTime,
+      ReportUserCardRecharge report = reportUserCardRechargeService.findByDateAndUserId(startTime,
         cardRecharge.getUserID());
-      if (recharge != null) {
-        recharge.setValueCardRecharge(totalAmount);
-        reportUserCardRechargeService.save(recharge);
-
+      boolean recordExisted = report != null;
+      if (recordExisted) {
+        report.setValueCardRecharge(totalAmount);
+        reportUserCardRechargeService.save(report);
       }
       else {
+        ReportUserCardRecharge reportUserCardRecharge = new ReportUserCardRecharge();
+        reportUserCardRecharge.setValueCardRecharge(totalAmount);
+        reportUserCardRecharge.setDate(startTime);
+        reportUserCardRecharge.setUserId(cardRecharge.getUserID());
+        reportUserCardRecharge.setValueCardCashOut(0L);
         reportUserCardRechargeService.save(reportUserCardRecharge);
       }
 
     }
   }
 
-  private void reportCardCashOut(Calendar startTime, Calendar endTime) {
+  private void reportCardCashOutPerHour(Calendar startTime, Calendar endTime) {
     List<CardCashOut> cardCashOutList = cardCashOutRepository.getCardCashOut(startTime, endTime);
-    Iterator<CardCashOut> cashOutIterator = cardCashOutList.iterator();
-    while (cashOutIterator.hasNext()) {
-      CardCashOut cardCashOut = cashOutIterator.next();
-      Long totalCardCashOut = cardCashOutRepository.getTotalAmount(cardCashOut.getUserID(), startTime, endTime);
-      ReportUserCardRecharge recharge = new ReportUserCardRecharge();
-      recharge.setValueCardCashOut(totalCardCashOut);
-      recharge.setDate(startTime);
-      recharge.setUserId(cardCashOut.getUserID());
-      recharge.setValueCardRecharge(0l);
+    for (CardCashOut cardCashOut : cardCashOutList) {
+      Long totalAmountCashOut = cardCashOutRepository.getTotalAmount(cardCashOut.getUserID(), startTime, endTime);
       ReportUserCardRecharge reportUserCardRecharge = reportUserCardRechargeService.findByDateAndUserId(startTime,
         cardCashOut.getUserID());
-      if (reportUserCardRecharge == null) {
-        reportUserCardRechargeService.save(recharge);
+      boolean recordNotExisted = reportUserCardRecharge == null;
+      if (recordNotExisted) {
+        ReportUserCardRecharge report = new ReportUserCardRecharge();
+        report.setValueCardCashOut(totalAmountCashOut);
+        report.setDate(startTime);
+        report.setUserId(cardCashOut.getUserID());
+        report.setValueCardRecharge(0L);
+        reportUserCardRechargeService.save(report);
       }
       else {
-        reportUserCardRecharge.setValueCardCashOut(totalCardCashOut);
+        reportUserCardRecharge.setValueCardCashOut(totalAmountCashOut);
         reportUserCardRechargeService.save(reportUserCardRecharge);
       }
     }
