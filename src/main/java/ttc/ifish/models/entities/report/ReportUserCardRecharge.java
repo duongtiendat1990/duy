@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "report_user_card_recharge")
+@Table(name = "report_user_card")
 public class ReportUserCardRecharge {
 
   @Id
